@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 plan.md
+Tmdb_host_ipv4
+Tmdb_host_ipv6
+README.md
