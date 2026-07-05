@@ -77,7 +77,7 @@ SYSTEM_HOSTS_TEMPLATE = """# CheckTMDB START
 
 # 标记块检测正则（匹配 # CheckTMDB START 到 # CheckTMDB END 之间的全部内容）
 CHECKTMDB_MARKER_PATTERN = re.compile(
-    r'^#\s*CheckTMDB\s+START\s*$(.*?)^#\s*CheckTMDB\s+END\s*$',
+    r'^#\s*CheckTMDB\s+START\s*\r?$(.*?)^#\s*CheckTMDB\s+END\s*\r?$',
     re.MULTILINE | re.DOTALL
 )
 
@@ -427,7 +427,7 @@ def update_system_hosts(ipv4_results, ipv6_results, update_time, hosts_path=None
         # 追加前确保有换行分隔
         if existing_content and not existing_content.endswith("\n"):
             existing_content += "\n"
-        updated_content = existing_content + "\n" + new_block + "\n"
+        updated_content = existing_content + new_block + "\n"
         print("未检测到 CheckTMDB 标记块，追加至文件末尾")
 
     # 写入
