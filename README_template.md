@@ -216,7 +216,7 @@ $url = "https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/
 $marker = "# CheckTMDB"
 
 # 下载最新 hosts
-try {
+try {{
     $newHosts = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 30
     $content = Get-Content $hostsFile -Raw -ErrorAction SilentlyContinue
     # 移除旧的 CheckTMDB 区块
@@ -225,9 +225,9 @@ try {
     $content += "`n# CheckTMDB START`n$($newHosts.Content)`n# CheckTMDB END`n"
     Set-Content $hostsFile -Value $content -Encoding UTF8
     Write-Output "$(Get-Date): CheckTMDB hosts updated successfully"
-} catch {
+}} catch {{
     Write-Output "$(Get-Date): Failed to update hosts - $($_.Exception.Message)"
-}
+}}
 ```
 
 2. 打开 **任务计划程序**（`Win + R` 输入 `taskschd.msc`）
