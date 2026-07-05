@@ -1,6 +1,5 @@
 import requests
 from time import sleep
-import random
 import time
 import os
 import sys
@@ -31,7 +30,6 @@ DOMAINS = [
     'ia.media-imdb.com',
     'thetvdb.com',
     'api.thetvdb.com',
-    'ia.media-imdb.com',
     'f.media-amazon.com',
     'imdb-video.media-imdb.com',
     'webservice.fanart.tv',
@@ -83,6 +81,15 @@ CHECKTMDB_MARKER_PATTERN = re.compile(
     re.MULTILINE | re.DOTALL
 )
 
+# IPv4/IPv6 预编译正则（避免每次调用 validate_ip 时重复编译）
+_IPV4_RE = re.compile(
+    r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+)
+_IPV6_RE = re.compile(
+    r'^(?:(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,7}:|(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}|(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}|(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}|(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:(?:(?::[0-9a-fA-F]{1,4}){1,6})|:(?:(?::[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(?::[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(?:ffff(?::0{1,4}){0,1}:){0,1}(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])|(?:[0-9a-fA-F]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$',
+    re.IGNORECASE
+)
+
 def write_file(ipv4_hosts_content: str, ipv6_hosts_content: str, update_time: str, append_github: bool = False) -> bool:
     output_doc_file_path = os.path.join(os.path.dirname(__file__), "README.md")
     template_path = os.path.join(os.path.dirname(__file__), "README_template.md")
@@ -91,17 +98,26 @@ def write_file(ipv4_hosts_content: str, ipv6_hosts_content: str, update_time: st
         with open(output_doc_file_path, "r", encoding='utf-8') as old_readme_md:
             old_readme_md_content = old_readme_md.read()            
             if old_readme_md_content:
-                old_ipv4_block = old_readme_md_content.split("```bash")[1].split("```")[0].strip()
-                old_ipv4_hosts = old_ipv4_block.split("# Update time:")[0].strip()
+                try:
+                    old_ipv4_block = old_readme_md_content.split("```bash")[1].split("```")[0].strip()
+                    old_ipv4_hosts = old_ipv4_block.split("# Update time:")[0].strip()
 
-                old_ipv6_block = old_readme_md_content.split("```bash")[2].split("```")[0].strip()
-                old_ipv6_hosts = old_ipv6_block.split("# Update time:")[0].strip()
+                    old_ipv6_block = old_readme_md_content.split("```bash")[2].split("```")[0].strip()
+                    old_ipv6_hosts = old_ipv6_block.split("# Update time:")[0].strip()
+                except IndexError:
+                    print("README.md 格式异常，无法解析旧内容，将直接覆盖写入")
+                    old_ipv4_hosts = old_ipv6_hosts = None
+                    old_ipv4_block = old_ipv6_block = ""
                 
                 if ipv4_hosts_content != "":
-                    new_ipv4_hosts = ipv4_hosts_content.split("# Update time:")[0].strip()
-                    if old_ipv4_hosts == new_ipv4_hosts:
-                        print("ipv4 host not change")
-                        w_ipv4_block = old_ipv4_block
+                    if old_ipv4_hosts is not None:
+                        new_ipv4_hosts = ipv4_hosts_content.split("# Update time:")[0].strip()
+                        if old_ipv4_hosts == new_ipv4_hosts:
+                            print("ipv4 host not change")
+                            w_ipv4_block = old_ipv4_block
+                        else:
+                            w_ipv4_block = ipv4_hosts_content
+                            write_host_file(ipv4_hosts_content, 'ipv4', append_github)
                     else:
                         w_ipv4_block = ipv4_hosts_content
                         write_host_file(ipv4_hosts_content, 'ipv4', append_github)
@@ -110,10 +126,14 @@ def write_file(ipv4_hosts_content: str, ipv6_hosts_content: str, update_time: st
                     w_ipv4_block = old_ipv4_block
 
                 if ipv6_hosts_content != "":
-                    new_ipv6_hosts = ipv6_hosts_content.split("# Update time:")[0].strip()
-                    if old_ipv6_hosts == new_ipv6_hosts:
-                        print("ipv6 host not change")
-                        w_ipv6_block = old_ipv6_block
+                    if old_ipv6_hosts is not None:
+                        new_ipv6_hosts = ipv6_hosts_content.split("# Update time:")[0].strip()
+                        if old_ipv6_hosts == new_ipv6_hosts:
+                            print("ipv6 host not change")
+                            w_ipv6_block = old_ipv6_block
+                        else:
+                            w_ipv6_block = ipv6_hosts_content
+                            write_host_file(ipv6_hosts_content, 'ipv6', append_github)
                     else:
                         w_ipv6_block = ipv6_hosts_content
                         write_host_file(ipv6_hosts_content, 'ipv6', append_github)
@@ -136,18 +156,13 @@ def validate_ip(ip):
     :param ip: 待验证的IP字符串
     :return: True（合法）/False（非法）
     """
-    # IPv4正则（严格验证：每个段0-255，无前置零（除0.0.0.0等合法场景））
-    ipv4_pattern = r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
-    # IPv6正则（兼容压缩格式、本地链路地址、IPv4映射地址等所有合法格式）
-    ipv6_pattern = r'^(?:(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,7}:|(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}|(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}|(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}|(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:(?:(?::[0-9a-fA-F]{1,4}){1,6})|:(?:(?::[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(?::[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(?:ffff(?::0{1,4}){0,1}:){0,1}(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])|(?:[0-9a-fA-F]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$'
-    
-    # 忽略大小写验证IPv6，优先验证IPv4
-    if re.match(ipv4_pattern, ip):
+    # 优先验证IPv4，再验证IPv6（均使用模块级预编译正则）
+    if _IPV4_RE.match(ip):
         return True
-    elif re.match(ipv6_pattern, ip, re.IGNORECASE):
+    elif _IPV6_RE.match(ip):
         return True
     else:
-        return False                
+        return False
 
 def write_host_file(hosts_content: str, filename: str, append_github: bool = False) -> None:
     output_file_path = os.path.join(os.path.dirname(__file__), "Tmdb_host_" + filename)
@@ -158,7 +173,7 @@ def write_host_file(hosts_content: str, filename: str, append_github: bool = Fal
         output_fb.write(hosts_content)
         print("\n~最新TMDB" + filename + "地址已更新~")
 
-def get_github_hosts() -> None:
+def get_github_hosts() -> str | None:
     github_hosts_urls = [
         "https://hosts.gitcdn.top/hosts.txt",
         "https://raw.githubusercontent.com/521xueweihan/GitHub520/refs/heads/main/hosts",
@@ -168,32 +183,20 @@ def get_github_hosts() -> None:
     all_failed = True
     for url in github_hosts_urls:
         try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                github_hosts = response.text
-                all_failed = False
-                break
-            else:
-                print(f"\n从 {url} 获取GitHub hosts失败: HTTP {response.status_code}")
+            with requests.get(url) as response:
+                if response.status_code == 200:
+                    github_hosts = response.text
+                    all_failed = False
+                    break
+                else:
+                    print(f"\n从 {url} 获取GitHub hosts失败: HTTP {response.status_code}")
         except Exception as e:
             print(f"\n从 {url} 获取GitHub hosts时发生错误: {str(e)}")
     if all_failed:
         print("\n获取GitHub hosts失败: 所有Url项目失败！")
-        return
+        return None
     else:
         return github_hosts
-
-def is_ci_environment():
-    ci_environment_vars = {
-        'GITHUB_ACTIONS': 'true',
-        'TRAVIS': 'true',
-        'CIRCLECI': 'true'
-    }
-    for env_var, expected_value in ci_environment_vars.items():
-        env_value = os.getenv(env_var)
-        if env_value is not None and str(env_value).lower() == expected_value.lower():
-            return True
-    return False
     
 def _query_dns_server(server_config, domain, record_type):
     """
@@ -214,28 +217,28 @@ def _query_dns_server(server_config, domain, record_type):
     }
 
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=timeout)
-        response.raise_for_status()
-        data = response.json()
+        with requests.get(url, headers=headers, params=params, timeout=timeout) as response:
+            response.raise_for_status()
+            data = response.json()
 
-        if not isinstance(data, dict):
-            print(f"  [{server_name}] 返回数据格式异常")
-            return None
+            if not isinstance(data, dict):
+                print(f"  [{server_name}] 返回数据格式异常")
+                return None
 
-        answer_list = data.get("Answer", [])
-        if not answer_list:
-            print(f"  [{server_name}] 未找到 {domain} 的{record_type}记录")
-            return []
+            answer_list = data.get("Answer", [])
+            if not answer_list:
+                print(f"  [{server_name}] 未找到 {domain} 的{record_type}记录")
+                return []
 
-        ips = []
-        for answer in answer_list:
-            ip = answer.get("data")
-            if ip and validate_ip(ip):
-                ips.append(ip)
-                print(f"  [{server_name}] 提取到合法IP：{ip}")
-            elif ip:
-                print(f"  [{server_name}] 跳过非法IP格式：{ip}")
-        return ips
+            ips = []
+            for answer in answer_list:
+                ip = answer.get("data")
+                if ip and validate_ip(ip):
+                    ips.append(ip)
+                    print(f"  [{server_name}] 提取到合法IP：{ip}")
+                elif ip:
+                    print(f"  [{server_name}] 跳过非法IP格式：{ip}")
+            return ips
 
     except requests.exceptions.RequestException as e:
         print(f"  [{server_name}] 请求失败：{e}")
@@ -261,7 +264,7 @@ def get_domain_ips(domain, record_type):
         for attempt in range(1, max_retries_per_server + 1):
             if attempt > 1:
                 print(f"  [{server_name}] 第{attempt}次重试...")
-                sleep(1)
+                sleep(1 * attempt)  # 指数退避：第1次等1秒，第2次等2秒
 
             result = _query_dns_server(server_config, domain, record_type)
 
@@ -276,7 +279,6 @@ def get_domain_ips(domain, record_type):
     return []
 
 def ping_ip(ip, port=80):
-    print(f"使用TCP连接测试IP地址的延迟（毫秒）")
     try:
         print(f"\n开始 ping {ip}...")
         start_time = time.time()
@@ -348,7 +350,7 @@ def _get_default_hosts_path():
 
 def _backup_hosts(hosts_path):
     """备份 hosts 文件（带时间戳），返回备份路径，失败返回 None"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     backup_path = f"{hosts_path}.checktmdb_backup_{timestamp}"
     try:
         shutil.copy2(hosts_path, backup_path)
@@ -357,6 +359,16 @@ def _backup_hosts(hosts_path):
     except (OSError, PermissionError) as e:
         print(f"备份 hosts 文件失败: {e}")
         return None
+
+
+def _restore_backup(backup_path, hosts_path):
+    """从备份恢复 hosts 文件，失败时打印详细错误"""
+    if backup_path and os.path.exists(backup_path):
+        try:
+            shutil.copy2(backup_path, hosts_path)
+            print("已从备份恢复原始 hosts 文件")
+        except Exception as e:
+            print(f"警告：恢复备份也失败: {e}，请手动检查 hosts 文件")
 
 
 def update_system_hosts(ipv4_results, ipv6_results, update_time, hosts_path=None):
@@ -405,8 +417,11 @@ def update_system_hosts(ipv4_results, ipv6_results, update_time, hosts_path=None
         return False
 
     # 增量更新逻辑
-    if CHECKTMDB_MARKER_PATTERN.search(existing_content):
-        updated_content = CHECKTMDB_MARKER_PATTERN.sub(new_block, existing_content)
+    matches = CHECKTMDB_MARKER_PATTERN.findall(existing_content)
+    if matches:
+        if len(matches) > 1:
+            print(f"警告：检测到 {len(matches)} 个 CheckTMDB 标记块，仅替换第一个")
+        updated_content = CHECKTMDB_MARKER_PATTERN.sub(new_block, existing_content, count=1)
         print("检测到已有 CheckTMDB 标记块，执行增量替换")
     else:
         # 追加前确保有换行分隔
@@ -423,16 +438,11 @@ def update_system_hosts(ipv4_results, ipv6_results, update_time, hosts_path=None
         return True
     except PermissionError:
         print(f"权限不足：无法写入 {hosts_path}")
-        # 写入失败时尝试恢复备份
-        if backup_path and os.path.exists(backup_path):
-            try:
-                shutil.copy2(backup_path, hosts_path)
-                print("已从备份恢复原始 hosts 文件")
-            except Exception:
-                print("警告：恢复备份也失败，请手动检查 hosts 文件")
+        _restore_backup(backup_path, hosts_path)
         return False
     except OSError as e:
         print(f"写入 hosts 文件失败: {e}")
+        _restore_backup(backup_path, hosts_path)
         return False
 
 
