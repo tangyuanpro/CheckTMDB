@@ -37,13 +37,13 @@
 
 以下文件由 GitHub Actions 每天自动更新两次，可直接订阅使用：
 
-- **IPv4 hosts**：[Tmdb_host_ipv4](https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv4)
+- **IPv4 hosts**：[Tmdb_host_ipv4](https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4)
   ```
-  https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
+  https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
   ```
-- **IPv6 hosts**：[Tmdb_host_ipv6](https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv6)
+- **IPv6 hosts**：[Tmdb_host_ipv6](https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6)
   ```
-  https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
+  https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
   ```
 
 ### 3.2 手动复制
@@ -116,8 +116,8 @@ hosts 文件在各操作系统中的位置如下：
    - **Hosts 类型**：选择 `远程`
    - **Hosts 标题**：填写任意名称（如 `CheckTMDB IPv4`）
    - **URL**：
-     - IPv4：`https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv4`
-     - IPv6：`https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv6`
+     - IPv4：`https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4`
+     - IPv6：`https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6`
    - **自动刷新**：选择 `1 小时`
 3. 在左侧边栏**启用**该 hosts 规则，软件会自动获取内容
 
@@ -146,7 +146,7 @@ HOSTS_FILE="/etc/hosts"
 TEMP_FILE="/tmp/checktmdb_hosts.tmp"
 
 # 下载最新 IPv4 hosts
-curl -fsSL "https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv4" > "$TEMP_FILE" 2>/dev/null
+curl -fsSL "https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4" > "$TEMP_FILE" 2>/dev/null
 
 if [ $? -eq 0 ] && [ -s "$TEMP_FILE" ]; then
     # 移除旧的 CheckTMDB 区块
@@ -212,7 +212,7 @@ DSM 6 的任务计划配置与 DSM 7 基本一致，主要差异如下：
 ```shell
 # 将以下内容保存为 C:\Scripts\Update-CheckTMDB.ps1
 $hostsFile = "$env:SystemRoot\System32\drivers\etc\hosts"
-$url = "https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv4"
+$url = "https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4"
 $marker = "# CheckTMDB"
 
 # 下载最新 hosts
@@ -255,7 +255,7 @@ try {
 1. 克隆仓库并安装依赖：
 
 ```shell
-git clone https://github.com/cnwikee/CheckTMDB.git /opt/CheckTMDB
+git clone https://github.com/tangyuanpro/CheckTMDB.git /opt/CheckTMDB
 cd /opt/CheckTMDB
 pip3 install -r requirements.txt
 ```
@@ -356,7 +356,7 @@ pip3 install requests
 
 ```shell
 cd /root
-git clone https://github.com/cnwikee/CheckTMDB.git
+git clone https://github.com/tangyuanpro/CheckTMDB.git
 ```
 
 3. 添加 cron 定时任务（每天 8:00 和 20:00 执行）：
@@ -485,6 +485,6 @@ python check_tmdb_github_dnschecked.py -H --hosts-path /tmp/test_hosts
 
 - 本项目 README 及部分代码参考 [GitHub520](https://github.com/521xueweihan/GitHub520)
 - DNS 解析服务由 [AliDNS](https://alidns.com/)、[360 DNS](https://doh.360.cn/)、[Google Public DNS](https://dns.google/) 提供
-- 如有问题或建议，欢迎提交 [Issues](https://github.com/cnwikee/CheckTMDB/issues/new)
+- 如有问题或建议，欢迎提交 [Issues](https://github.com/tangyuanpro/CheckTMDB/issues/new)
 
 > **免责声明**：本项目仅在作者本机测试通过，不同网络环境下 IP 可用性可能存在差异。生成的 hosts 内容仅供参考，请自行测试可用性后使用。
