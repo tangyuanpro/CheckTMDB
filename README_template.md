@@ -5,6 +5,7 @@
 ## 一、前景
 
 自从我早两年使用了黑群NAS以后，下了好多的电影电视剧，发现电视端无法生成正常的海报墙。查找资料得知应该是 themoviedb.org、tmdb.org 无法正常访问，因为DNS受到了污染无法正确解析到TMDB的IP，故依葫芦画瓢写了一个python脚本，每日定时通过[dnschecker](https://dnschecker.org/)查询出最佳IP，并自动同步到路由器外挂hosts，可正常削刮。
+本fork仓库基于原仓库使用AI修改了脚本
 
 **本项目无需安装任何程序**
 
@@ -12,8 +13,8 @@
 
 ## 文件地址
 
-- TMDB IPv4 hosts：`https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv4` ，[链接](https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv4)
-- TMDB IPv6 hosts：`https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv6` ，[链接](https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv6)
+- TMDB IPv4 hosts：`https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4` ，[链接](https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4)
+- TMDB IPv6 hosts：`https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6` ，[链接](https://raw.githubusercontent.com/cnwikee/CheckTMDB/refs/heads/main/Tmdb_host_ipv6)
 
 ## 二、使用方法
 
@@ -137,4 +138,4 @@ python check_tmdb_github_dnschecked.py -H --hosts-path /tmp/test_hosts
 ## 其他
 
 - [x] README.md 及 部分代码 参考[GitHub520](https://github.com/521xueweihan/GitHub520)
-- [x] * 本项目仅在本机测试通过，如有问题欢迎提 [issues](https://github.com/cnwikee/CheckTMDB/issues/new)
+- [x] * 本项目仅在本机测试通过，如有问题欢迎提 [issues](https://github.com/tangyuanpro/CheckTMDB/issues/new)
