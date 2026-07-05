@@ -6,8 +6,10 @@ import os
 import sys
 import re  # 导入正则模块用于IP验证
 from datetime import datetime, timezone, timedelta
-from retry import retry
 import socket
+import argparse
+import shutil
+import platform
 
 DOMAINS = [
     'tmdb.org',
@@ -49,7 +51,39 @@ Tmdb_Host_TEMPLATE = """# Tmdb Hosts Start
 # Star me: https://github.com/cnwikee/CheckTMDB
 # Tmdb Hosts End\n"""
 
-def write_file(ipv4_hosts_content: str, ipv6_hosts_content: str, update_time: str) -> bool:
+# 境内可用 DNS-over-HTTPS 服务器列表（按优先级排序，列表顺序即尝试顺序）
+DNS_SERVERS = [
+    {
+        "name": "AliDNS",
+        "url": "https://dns.alidns.com/resolve",
+        "timeout": 10,
+    },
+    {
+        "name": "360DNS",
+        "url": "https://doh.360.cn/resolve",
+        "timeout": 10,
+    },
+    {
+        "name": "GoogleDNS",
+        "url": "https://dns.google/resolve",
+        "timeout": 15,
+    },
+]
+
+# /etc/hosts 写入内容模板
+SYSTEM_HOSTS_TEMPLATE = """# CheckTMDB START
+# Updated: {update_time}
+# Source: https://github.com/cnwikee/CheckTMDB
+{content}
+# CheckTMDB END"""
+
+# 标记块检测正则（匹配 # CheckTMDB START 到 # CheckTMDB END 之间的全部内容）
+CHECKTMDB_MARKER_PATTERN = re.compile(
+    r'^#\s*CheckTMDB\s+START\s*$(.*?)^#\s*CheckTMDB\s+END\s*$',
+    re.MULTILINE | re.DOTALL
+)
+
+def write_file(ipv4_hosts_content: str, ipv6_hosts_content: str, update_time: str, append_github: bool = False) -> bool:
     output_doc_file_path = os.path.join(os.path.dirname(__file__), "README.md")
     template_path = os.path.join(os.path.dirname(__file__), "README_template.md")
     
@@ -70,7 +104,7 @@ def write_file(ipv4_hosts_content: str, ipv6_hosts_content: str, update_time: st
                         w_ipv4_block = old_ipv4_block
                     else:
                         w_ipv4_block = ipv4_hosts_content
-                        write_host_file(ipv4_hosts_content, 'ipv4')
+                        write_host_file(ipv4_hosts_content, 'ipv4', append_github)
                 else:
                     print("ipv4_hosts_content is null")
                     w_ipv4_block = old_ipv4_block
@@ -82,7 +116,7 @@ def write_file(ipv4_hosts_content: str, ipv6_hosts_content: str, update_time: st
                         w_ipv6_block = old_ipv6_block
                     else:
                         w_ipv6_block = ipv6_hosts_content
-                        write_host_file(ipv6_hosts_content, 'ipv6')
+                        write_host_file(ipv6_hosts_content, 'ipv6', append_github)
                 else:
                     print("ipv6_hosts_content is null")
                     w_ipv6_block = old_ipv6_block
@@ -115,9 +149,9 @@ def validate_ip(ip):
     else:
         return False                
 
-def write_host_file(hosts_content: str, filename: str) -> None:
+def write_host_file(hosts_content: str, filename: str, append_github: bool = False) -> None:
     output_file_path = os.path.join(os.path.dirname(__file__), "Tmdb_host_" + filename)
-    if len(sys.argv) >= 2 and sys.argv[1].upper() == '-G':
+    if append_github:
         print("\n~追加Github ip~")
         hosts_content = hosts_content + "\n" + (get_github_hosts() or "")
     with open(output_file_path, "w", encoding='utf-8') as output_fb:
@@ -161,78 +195,85 @@ def is_ci_environment():
             return True
     return False
     
-@retry(tries=3)
-def get_domain_ips(domain, record_type):
+def _query_dns_server(server_config, domain, record_type):
     """
-    从Google DNS获取域名的A/AAAA记录IP列表
-    :param domain: 目标域名（如 tmdb.org）
-    :param record_type: 记录类型（A/AAAA，或数字1/28）
-    :return: 去重后的IP列表
+    向单个 DNS 服务器发起 JSON API 查询
+    :param server_config: DNS_SERVERS 中的单个配置字典
+    :param domain: 目标域名
+    :param record_type: A 或 AAAA
+    :return: IP 列表（成功），空列表（无记录），None（请求失败，触发 fallback）
     """
-    all_ips = []  # 存储所有DNS服务器返回的IP
-    
-    print(f"正在从Google DNS获取 {domain} 的{record_type}记录...")
-    url = f'https://dns.google/resolve'
+    url = server_config["url"]
+    server_name = server_config["name"]
+    timeout = server_config.get("timeout", 10)
+
+    params = {"name": domain, "type": record_type}
     headers = {
-        "accept": "*/*",
-        "accept-encoding": "gzip, deflate, br, zstd",
-        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-        "content-type": "application/json; charset=UTF-8",  # 关键：指定JSON格式负载
-        "referer": f"https://dns.google/query?name={domain}&rr_type={record_type}&ecs=",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0"
+        "accept": "application/dns-json",
+        "user-agent": "CheckTMDB/1.0"
     }
-
-    params = {
-        'name': domain,
-        'type': record_type
-    }
-
-    # 初始化IP列表（默认空列表，确保后续使用安全）
-    ips_str = []
 
     try:
-        # 改用GET请求（Google DNS resolve接口标准用法）
-        response = requests.get(url, headers=headers, params=params, timeout=10)
-        response.raise_for_status()  # 主动抛出HTTP错误（如4xx/5xx）
-
-        # 解析JSON响应
+        response = requests.get(url, headers=headers, params=params, timeout=timeout)
+        response.raise_for_status()
         data = response.json()
-        if not isinstance(data, dict):
-            print("返回数据不是字典格式，无法解析")
-            return all_ips
 
-        # 核心：提取Answer数组中的data字段（IP地址）
+        if not isinstance(data, dict):
+            print(f"  [{server_name}] 返回数据格式异常")
+            return None
+
         answer_list = data.get("Answer", [])
         if not answer_list:
-            print(f"未找到 {domain} 的{record_type}记录（Answer字段为空）")
-            return all_ips
+            print(f"  [{server_name}] 未找到 {domain} 的{record_type}记录")
+            return []
 
-        # 遍历Answer数组，提取每个条目的data值（IP）
+        ips = []
         for answer in answer_list:
             ip = answer.get("data")
-            if not ip:  # 过滤空值
-                continue
-            
-            # 验证IP格式合法性
-            if validate_ip(ip):
-                all_ips.append(ip)
-                print(f"提取到合法IP：{ip}")
-            else:
-                print(f"跳过非法IP格式：{ip}")
+            if ip and validate_ip(ip):
+                ips.append(ip)
+                print(f"  [{server_name}] 提取到合法IP：{ip}")
+            elif ip:
+                print(f"  [{server_name}] 跳过非法IP格式：{ip}")
+        return ips
 
     except requests.exceptions.RequestException as e:
-        # 捕获所有网络/请求异常
-        print(f"请求Google DNS失败：{e}")
-        if hasattr(e, 'response') and e.response:
-            print(f"响应内容：{e.response.text[:500]}")  # 打印前500字符避免过长
+        print(f"  [{server_name}] 请求失败：{e}")
+        return None
     except ValueError:
-        # JSON解析失败
-        print(f"响应内容不是有效的JSON格式：{response.text[:500]}")
-    time.sleep(1)
-    # 去重并返回（保持列表格式）
-    unique_ips = list(set(all_ips))
-    print(f"最终提取到 {domain} 的{record_type}记录IP（去重后）：{unique_ips}")
-    return unique_ips
+        print(f"  [{server_name}] 响应不是有效JSON")
+        return None
+
+
+def get_domain_ips(domain, record_type):
+    """
+    从多个 DoH 服务器获取域名的 A/AAAA 记录，支持自动 fallback
+    :param domain: 目标域名（如 tmdb.org）
+    :param record_type: 记录类型（A/AAAA）
+    :return: 去重后的 IP 列表
+    """
+    max_retries_per_server = 2
+
+    for server_config in DNS_SERVERS:
+        server_name = server_config["name"]
+        print(f"正在从 {server_name} 获取 {domain} 的{record_type}记录...")
+
+        for attempt in range(1, max_retries_per_server + 1):
+            if attempt > 1:
+                print(f"  [{server_name}] 第{attempt}次重试...")
+                sleep(1)
+
+            result = _query_dns_server(server_config, domain, record_type)
+
+            if result is not None:
+                # 成功（含空列表——服务器正常但无记录，不触发 fallback）
+                unique_ips = list(set(result))
+                print(f"  [{server_name}] 最终获取到（去重后）：{unique_ips}")
+                return unique_ips
+            # result is None → 请求失败，继续重试或切换到下一个服务器
+
+    print(f"所有 DNS 服务器均无法获取 {domain} 的{record_type}记录")
+    return []
 
 def ping_ip(ip, port=80):
     print(f"使用TCP连接测试IP地址的延迟（毫秒）")
@@ -281,20 +322,135 @@ def find_fastest_ip(ips):
     
     return fastest_ip
 
+def parse_args():
+    """解析命令行参数"""
+    parser = argparse.ArgumentParser(
+        description="CheckTMDB - 自动探测 TMDB/IMDB/TVDB 域名最快 IP 并生成 hosts 文件"
+    )
+    parser.add_argument("-G", "--github", action="store_true", default=False,
+                        help="在输出文件中追加 GitHub 相关域名的最快 IP")
+    parser.add_argument("-H", "--hosts", action="store_true", default=False,
+                        help="将结果写入系统 /etc/hosts 文件（需要 sudo/root 权限）")
+    parser.add_argument("--hosts-path", type=str, default=None,
+                        help="自定义 hosts 文件路径（默认自动检测系统路径）")
+    return parser.parse_args()
+
+
+def _get_default_hosts_path():
+    """获取当前操作系统的默认 hosts 文件路径"""
+    if platform.system() == "Windows":
+        return os.path.join(
+            os.environ.get("SystemRoot", r"C:\Windows"),
+            "System32", "drivers", "etc", "hosts"
+        )
+    return "/etc/hosts"
+
+
+def _backup_hosts(hosts_path):
+    """备份 hosts 文件（带时间戳），返回备份路径，失败返回 None"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = f"{hosts_path}.checktmdb_backup_{timestamp}"
+    try:
+        shutil.copy2(hosts_path, backup_path)
+        print(f"已备份 hosts 文件至: {backup_path}")
+        return backup_path
+    except (OSError, PermissionError) as e:
+        print(f"备份 hosts 文件失败: {e}")
+        return None
+
+
+def update_system_hosts(ipv4_results, ipv6_results, update_time, hosts_path=None):
+    """
+    将探测结果写入系统 /etc/hosts 文件，支持备份 + 增量更新
+    :param ipv4_results: [[ip, domain], ...]
+    :param ipv6_results: [[ip, domain], ...]
+    :param update_time:  更新时间字符串
+    :param hosts_path:   hosts 路径（None 则使用系统默认路径）
+    :return: True 成功 / False 失败
+    """
+    if hosts_path is None:
+        hosts_path = _get_default_hosts_path()
+
+    if not os.path.exists(hosts_path):
+        print(f"hosts 文件不存在: {hosts_path}")
+        return False
+
+    # 构建写入内容
+    entries = []
+    for ip, domain in ipv4_results:
+        entries.append(f"{ip:<27} {domain}")
+    for ip, domain in ipv6_results:
+        entries.append(f"{ip:<50} {domain}")
+
+    new_block = SYSTEM_HOSTS_TEMPLATE.format(
+        update_time=update_time,
+        content="\n".join(entries)
+    )
+
+    # 读取现有内容
+    try:
+        with open(hosts_path, "r", encoding="utf-8") as f:
+            existing_content = f.read()
+    except PermissionError:
+        print(f"权限不足：无法读取 {hosts_path}，请使用 sudo/root 权限运行")
+        return False
+    except OSError as e:
+        print(f"读取 hosts 文件失败: {e}")
+        return False
+
+    # 备份
+    backup_path = _backup_hosts(hosts_path)
+    if backup_path is None:
+        print("备份失败，中止写入以保护系统安全")
+        return False
+
+    # 增量更新逻辑
+    if CHECKTMDB_MARKER_PATTERN.search(existing_content):
+        updated_content = CHECKTMDB_MARKER_PATTERN.sub(new_block, existing_content)
+        print("检测到已有 CheckTMDB 标记块，执行增量替换")
+    else:
+        # 追加前确保有换行分隔
+        if existing_content and not existing_content.endswith("\n"):
+            existing_content += "\n"
+        updated_content = existing_content + "\n" + new_block + "\n"
+        print("未检测到 CheckTMDB 标记块，追加至文件末尾")
+
+    # 写入
+    try:
+        with open(hosts_path, "w", encoding="utf-8") as f:
+            f.write(updated_content)
+        print(f"已成功更新 hosts 文件: {hosts_path}")
+        return True
+    except PermissionError:
+        print(f"权限不足：无法写入 {hosts_path}")
+        # 写入失败时尝试恢复备份
+        if backup_path and os.path.exists(backup_path):
+            try:
+                shutil.copy2(backup_path, hosts_path)
+                print("已从备份恢复原始 hosts 文件")
+            except Exception:
+                print("警告：恢复备份也失败，请手动检查 hosts 文件")
+        return False
+    except OSError as e:
+        print(f"写入 hosts 文件失败: {e}")
+        return False
+
+
 def main():
+    args = parse_args()
     print("开始检测TMDB相关域名的最快IP...")
 
     ipv4_ips, ipv6_ips, ipv4_results, ipv6_results = [], [], [], []
 
     for domain in DOMAINS:
-        print(f"\n正在处理域名: {domain}")       
+        print(f"\n正在处理域名: {domain}")
         ipv4_ips = get_domain_ips(domain, "A")
         ipv6_ips = get_domain_ips(domain, "AAAA")
 
         if not ipv4_ips and not ipv6_ips:
             print(f"无法获取 {domain} 的IP列表，跳过该域名")
             continue
-        
+
         # 处理 IPv4 地址
         if ipv4_ips:
             fastest_ipv4 = find_fastest_ip(ipv4_ips)
@@ -303,7 +459,7 @@ def main():
                 print(f"域名 {domain} 的最快IPv4是: {fastest_ipv4}")
             else:
                 ipv4_results.append([ipv4_ips[0], domain])
-        
+
         # 处理 IPv6 地址
         if ipv6_ips:
             fastest_ipv6 = find_fastest_ip(ipv6_ips)
@@ -313,9 +469,9 @@ def main():
             else:
                 # 兜底：可能存在无法正确获取 fastest_ipv6 的情况，则将第一个IP赋值
                 ipv6_results.append([ipv6_ips[0], domain])
-        
+
         sleep(1)  # 避免请求过于频繁
-    
+
     # 保存结果到文件
     if not ipv4_results and not ipv6_results:
         print(f"程序出错：未获取任何domain及对应IP，请检查接口~")
@@ -323,11 +479,34 @@ def main():
 
     # 生成更新时间
     update_time = datetime.now(timezone(timedelta(hours=8))).replace(microsecond=0).isoformat()
-    
-    ipv4_hosts_content = Tmdb_Host_TEMPLATE.format(content="\n".join(f"{ip:<27} {domain}" for ip, domain in ipv4_results), update_time=update_time) if ipv4_results else ""
-    ipv6_hosts_content = Tmdb_Host_TEMPLATE.format(content="\n".join(f"{ip:<50} {domain}" for ip, domain in ipv6_results), update_time=update_time) if ipv6_results else ""
 
-    write_file(ipv4_hosts_content, ipv6_hosts_content, update_time)
+    ipv4_hosts_content = Tmdb_Host_TEMPLATE.format(
+        content="\n".join(f"{ip:<27} {domain}" for ip, domain in ipv4_results),
+        update_time=update_time
+    ) if ipv4_results else ""
+
+    ipv6_hosts_content = Tmdb_Host_TEMPLATE.format(
+        content="\n".join(f"{ip:<50} {domain}" for ip, domain in ipv6_results),
+        update_time=update_time
+    ) if ipv6_results else ""
+
+    # 写入仓库文件（Tmdb_host_ipv4/ipv6 + README.md）
+    write_file(ipv4_hosts_content, ipv6_hosts_content, update_time,
+               append_github=args.github)
+
+    # 按需更新系统 /etc/hosts
+    if args.hosts:
+        print("\n" + "=" * 50)
+        print("开始更新系统 hosts 文件...")
+        print("=" * 50)
+        success = update_system_hosts(
+            ipv4_results, ipv6_results, update_time, args.hosts_path
+        )
+        if not success:
+            print("警告：系统 hosts 文件更新失败，但仓库文件已正常生成")
+            sys.exit(2)
+        else:
+            print("系统 hosts 文件更新成功")
 
 
 if __name__ == "__main__":

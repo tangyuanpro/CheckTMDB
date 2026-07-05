@@ -87,13 +87,54 @@ GitHub 发行版：https://github.com/oldj/SwitchHosts/releases/latest
 
 在左侧边栏启用 hosts，首次使用时软件会自动获取内容。如果无法连接到 GitHub，可以尝试用同样的方法添加 [GitHub520](https://github.com/521xueweihan/GitHub520) hosts。
 
-## 三、参数说明
+## 三、本地运行脚本
 
-1. 直接执行`check_tmdb_github.py`脚本，同时查询IPv4及IPv6地址，目录生成`Tmdb_host_ipv4`文件，及`Tmdb_host_ipv6`文件；
-2. 带`-G` 参数执行：`check_tmdb_github.py -G`，会在`Tmdb_host_ipv4`文件，及`Tmdb_host_ipv6`文件中追加 Github IPv4 地址；
+### 3.1 环境准备
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3.2 参数说明
+
+| 参数 | 说明 |
+|------|------|
+| （无参数） | 查询所有域名的最快 IPv4/IPv6 地址，生成 `Tmdb_host_ipv4` 和 `Tmdb_host_ipv6` 文件 |
+| `-G` | 在输出文件中追加 GitHub 相关域名的最快 IP |
+| `-H` | 将探测结果自动写入系统 `/etc/hosts` 文件（需要 sudo/root 权限） |
+| `--hosts-path PATH` | 自定义 hosts 文件路径（默认自动检测系统路径） |
+
+### 3.3 使用示例
+
+```bash
+# 仅生成 hosts 文件（CI 默认行为）
+python check_tmdb_github_dnschecked.py
+
+# 生成 hosts 文件并追加 GitHub IP
+python check_tmdb_github_dnschecked.py -G
+
+# 生成 hosts 文件并自动更新系统 /etc/hosts（需要 root 权限）
+sudo python check_tmdb_github_dnschecked.py -H
+
+# 同时追加 GitHub IP 并更新系统 hosts
+sudo python check_tmdb_github_dnschecked.py -G -H
+
+# 指定自定义 hosts 路径（测试用）
+python check_tmdb_github_dnschecked.py -H --hosts-path /tmp/test_hosts
+```
+
+> **注意**：使用 `-H` 参数时，脚本会在 `/etc/hosts` 中用 `# CheckTMDB START` / `# CheckTMDB END` 标记写入区域，支持增量更新，不会影响文件中的其他内容。每次写入前会自动备份原文件。
+
+### 3.4 DNS 查询策略
+
+脚本内置多 DNS 源自动回退机制，按优先级依次尝试：
+1. **AliDNS**（阿里公共 DNS）— 境内首选
+2. **360DNS** — 境内备选
+3. **GoogleDNS** — 境外/CI 环境备用
+
+任一 DNS 源可用即返回结果，无需手动配置。
 
 ## 其他
 
-- [x] 自学薄弱编程基础，大部分代码基于AI辅助生成，此项目过程中，主要人为解决的是：通过 [dnschecker](https://dnschecker.org/) 提交时，通过计算出正确的udp参数，获取正确的csrftoken，携带正确的referer提交！
 - [x] README.md 及 部分代码 参考[GitHub520](https://github.com/521xueweihan/GitHub520)
 - [x] * 本项目仅在本机测试通过，如有问题欢迎提 [issues](https://github.com/cnwikee/CheckTMDB/issues/new)
