@@ -264,7 +264,7 @@ def get_domain_ips(domain, record_type):
         for attempt in range(1, max_retries_per_server + 1):
             if attempt > 1:
                 print(f"  [{server_name}] 第{attempt}次重试...")
-                sleep(1 * attempt)  # 指数退避：第1次等1秒，第2次等2秒
+                sleep(1 * attempt)  # 线性退避：第1次等1秒，第2次等2秒
 
             result = _query_dns_server(server_config, domain, record_type)
 
