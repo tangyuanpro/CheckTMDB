@@ -1,3 +1,11 @@
+# **使用该fork项目前必读：**
+
+该fork仓库的README_template.md（同时影响了README.md）**基本由AI输出**，除**DSM7的使用方法**外都**未经测试**，如果你打算使用README.md（README_template.md）给出的其他方法可能还**需要自行辨认并修改**，在此我表示深深的遗憾，真的真的很不好意思啦。
+如果你使用了除DSM7以外的方法，不妨提个issue告诉我该方法是否可行或提出你的建议，当然如果你能一并带上你的修复方法就更好啦。在此我感激不尽
+
+------
+
+
 # CheckTMDB
 
 每日自动探测并更新 TMDB、IMDB、TVDB、Fanart、Trakt 等影视元数据域名的最快可用 IP，通过 DNS-over-HTTPS（DoH）多源回退 + TCP 延迟测速，自动生成最优 hosts 文件，解决国内 DNS 污染问题。
@@ -127,7 +135,30 @@ hosts 文件在各操作系统中的位置如下：
 
 适用于群晖 DSM 7.x 系统，通过"任务计划"定时拉取远程 hosts 并写入系统 hosts 文件。
 
-#### 方案一：定时拉取远程 hosts（推荐，无需安装 Python）
+#### 方案一：本地运行 Python 脚本（适合高级用户，该方法涉及到了IPv6 hosts的写入）
+
+前提：已通过群晖「套件中心」安装 **Python 3** 套件。
+
+1. 通过 SSH 或 File Station 将脚本文件上传到群晖，例如 `/volume1/homes/你的用户名/CheckTMDB/`
+2. 在 **「任务计划」** → **「新增」** → **「计划的任务」** → **「用户定义的脚本」** 中配置：
+   - **任务名称**：`CheckTMDB Python`
+   - **用户**：`root`
+   - **计划**：每天，时间选择 08:00（可自定义）
+3. 脚本内容：
+
+```shell
+#!/bin/sh
+SCRIPT_DIR="/volume1/homes/你的用户名/CheckTMDB"
+cd "$SCRIPT_DIR"
+# 安装依赖（首次运行需要）
+/usr/local/bin/pip3 install requests -q 2>/dev/null
+# 执行脚本并自动写入系统 hosts
+/usr/local/bin/python3 check_tmdb_github_dnschecked.py -H >> /var/log/checktmdb.log 2>&1
+```
+
+> **注意**：请将 `/volume1/homes/你的用户名/CheckTMDB` 替换为实际路径，Python 路径可能因套件版本不同而有所差异，可通过 `which python3` 命令确认。
+
+#### 方案二：定时拉取远程 hosts（无需安装 Python，该方法没有涉及到IPv6 hosts的写入，若有需要可以自己完善一下。并且没有验证是否有效）
 
 1. 登录 DSM 管理界面，打开 **「控制面板」** → **「任务计划」**
 2. 点击 **「新增」** → **「触发的任务」** → **「用户定义的脚本」**
@@ -167,29 +198,6 @@ rm -f "$TEMP_FILE"
 5. 点击 **「确定」** 保存
 
 如需**定时执行**（如每天两次），在上述步骤 2 中选择 **「计划的任务」** → **「用户定义的脚本」**，然后在"计划"选项卡中设置执行频率（如每天 8:00 和 20:00）。
-
-#### 方案二：本地运行 Python 脚本（适合高级用户）
-
-前提：已通过群晖「套件中心」安装 **Python 3** 套件。
-
-1. 通过 SSH 或 File Station 将脚本文件上传到群晖，例如 `/volume1/homes/你的用户名/CheckTMDB/`
-2. 在 **「任务计划」** → **「新增」** → **「计划的任务」** → **「用户定义的脚本」** 中配置：
-   - **任务名称**：`CheckTMDB Python`
-   - **用户**：`root`
-   - **计划**：每天，时间选择 08:00（可自定义）
-3. 脚本内容：
-
-```shell
-#!/bin/sh
-SCRIPT_DIR="/volume1/homes/你的用户名/CheckTMDB"
-cd "$SCRIPT_DIR"
-# 安装依赖（首次运行需要）
-/usr/local/bin/pip3 install requests -q 2>/dev/null
-# 执行脚本并自动写入系统 hosts
-/usr/local/bin/python3 check_tmdb_github_dnschecked.py -H >> /var/log/checktmdb.log 2>&1
-```
-
-> **注意**：请将 `/volume1/homes/你的用户名/CheckTMDB` 替换为实际路径，Python 路径可能因套件版本不同而有所差异，可通过 `which python3` 命令确认。
 
 ### 4.3 群晖 NAS — DSM 6 定时任务
 
@@ -420,7 +428,7 @@ pip install -r requirements.txt
 |------|--------|------|
 | （无参数） | — | 查询所有域名的最快 IPv4/IPv6 地址，生成 `Tmdb_host_ipv4` 和 `Tmdb_host_ipv6` 文件 |
 | `-G` | `--github` | 在输出文件中追加 GitHub 相关域名的最快 IP |
-| `-H` | `--hosts` | 将探测结果自动写入系统 hosts 文件（需要 root/管理员权限） |
+| `-H` | `--hosts` | 将探测结果自动写入系统 hosts 文件（需要 root/管理员权限），IPv4 hosts与IPv6 hosts将会一并写入 |
 | — | `--hosts-path PATH` | 自定义 hosts 文件路径（默认自动检测系统路径） |
 
 ### 5.3 使用示例
@@ -432,13 +440,13 @@ python check_tmdb_github_dnschecked.py
 # 生成 hosts 文件并追加 GitHub IP
 python check_tmdb_github_dnschecked.py -G
 
-# 生成 hosts 文件并自动更新系统 hosts（需要 root 权限）
+# 生成 hosts 文件并自动更新系统 hosts（需要 root 权限），IPv4 hosts与IPv6 hosts将会一并写入
 sudo python check_tmdb_github_dnschecked.py -H
 
-# 同时追加 GitHub IP 并更新系统 hosts
+# 同时追加 GitHub IP 并更新系统 hosts（需要 root 权限），IPv4 hosts与IPv6 hosts将会一并写入
 sudo python check_tmdb_github_dnschecked.py -G -H
 
-# 指定自定义 hosts 路径（测试用）
+# 指定自定义 hosts 路径（测试用），IPv4 hosts与IPv6 hosts将会一并写入
 python check_tmdb_github_dnschecked.py -H --hosts-path /tmp/test_hosts
 ```
 
