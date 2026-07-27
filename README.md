@@ -60,34 +60,34 @@
 
 ```bash
 # Tmdb Hosts Start
-18.239.105.34               tmdb.org
-108.156.60.121              api.tmdb.org
-18.65.39.66                 files.tmdb.org
-18.239.105.33               themoviedb.org
-3.173.161.8                 api.themoviedb.org
-18.239.105.64               www.themoviedb.org
-3.173.161.85                auth.themoviedb.org
-185.93.2.245                image.tmdb.org
-185.93.2.245                images.tmdb.org
-44.215.137.99               imdb.com
-18.239.66.50                www.imdb.com
-18.239.66.50                secure.imdb.com
-18.239.66.50                s.media-imdb.com
-44.215.137.99               us.dd.imdb.com
-18.239.66.50                www.imdb.to
-44.215.137.99               origin-www.imdb.com
-18.239.52.54                ia.media-imdb.com
-18.238.249.95               thetvdb.com
-18.65.36.76                 api.thetvdb.com
+18.238.96.97                tmdb.org
+18.155.173.89               api.tmdb.org
+18.238.109.13               files.tmdb.org
+18.155.173.111              themoviedb.org
+65.8.20.79                  api.themoviedb.org
+18.155.173.32               www.themoviedb.org
+18.238.96.88                auth.themoviedb.org
+169.150.249.165             image.tmdb.org
+169.150.249.165             images.tmdb.org
+98.82.158.179               imdb.com
+18.155.175.50               www.imdb.com
+18.155.175.50               secure.imdb.com
+18.155.175.50               s.media-imdb.com
+98.82.155.134               us.dd.imdb.com
+18.155.175.50               www.imdb.to
+98.82.158.179               origin-www.imdb.com
+65.8.193.164                ia.media-imdb.com
+65.8.197.76                 thetvdb.com
+65.8.197.76                 api.thetvdb.com
 146.75.117.16               f.media-amazon.com
-18.238.243.103              imdb-video.media-imdb.com
+18.238.109.121              imdb-video.media-imdb.com
 148.113.196.166             webservice.fanart.tv
 172.67.74.146               images.fanart.tv
 158.69.209.125              assets.fanart.tv
-104.26.12.126               fanart.tv
-104.20.14.80                api.trakt.tv
-104.20.14.80                trakt.tv
-# Update time: 2026-07-27T06:58:09+08:00
+104.26.13.126               fanart.tv
+104.20.13.80                api.trakt.tv
+104.20.13.80                trakt.tv
+# Update time: 2026-07-27T20:55:34+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
@@ -95,28 +95,28 @@
 
 ```
 
-该内容会自动定时更新，数据更新时间：2026-07-27T06:58:09+08:00
+该内容会自动定时更新，数据更新时间：2026-07-27T20:55:34+08:00
 
 #### 3.2.2 IPv6 hosts 内容
 
 ```bash
 # Tmdb Hosts Start
-2600:9000:25e8:9c00:10:db24:6940:93a1              tmdb.org
-2600:9000:2394:6400:10:fb02:4000:93a1              api.tmdb.org
-2600:9000:238d:9e00:5:da10:7440:93a1               files.tmdb.org
-2600:9000:25e8:1400:e:5373:440:93a1                themoviedb.org
-2600:9000:28dc:c800:c:174a:c400:93a1               api.themoviedb.org
-2600:9000:25e8:ca00:e:5373:440:93a1                www.themoviedb.org
-2600:9000:28dc:3c00:16:e4a1:eb00:93a1              auth.themoviedb.org
-2400:52e0:1e02::1218:1                             image.tmdb.org
-2400:52e0:1e02::1316:1                             images.tmdb.org
-2a04:4e42:8d::272                                  ia.media-imdb.com
+2600:9000:2776:9800:10:db24:6940:93a1              tmdb.org
+2600:9000:2105:2000:10:fb02:4000:93a1              api.tmdb.org
+2600:9000:2778:4e00:5:da10:7440:93a1               files.tmdb.org
+2600:9000:246b:3400:e:5373:440:93a1                themoviedb.org
+2600:9000:2105:ca00:c:174a:c400:93a1               api.themoviedb.org
+2600:9000:2105:f600:e:5373:440:93a1                www.themoviedb.org
+2600:9000:2776:6000:16:e4a1:eb00:93a1              auth.themoviedb.org
+2400:52e0:1a01::1002:1                             image.tmdb.org
+2400:52e0:1a01::987:1                              images.tmdb.org
+2600:1406:5e00:6::17ce:bc1e                        ia.media-imdb.com
 2a04:4e42:8d::272                                  f.media-amazon.com
 2606:4700:20::681a:c7e                             images.fanart.tv
 2606:4700:20::681a:c7e                             fanart.tv
 2606:4700:10::6814:d50                             api.trakt.tv
 2606:4700:10::6814:d50                             trakt.tv
-# Update time: 2026-07-27T06:58:09+08:00
+# Update time: 2026-07-27T20:55:34+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
@@ -124,7 +124,7 @@
 
 ```
 
-该内容会自动定时更新，数据更新时间：2026-07-27T06:58:09+08:00
+该内容会自动定时更新，数据更新时间：2026-07-27T20:55:34+08:00
 
 > [!NOTE]
 > 延迟数据获取于 GitHub Actions 虚拟主机网络环境（美国机房），与您本地网络的最优 IP 可能存在差异。建议在本地网络环境运行脚本以获得最佳效果。
