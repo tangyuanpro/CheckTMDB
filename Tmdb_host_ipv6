@@ -1,20 +1,13 @@
 # Tmdb Hosts Start
-2600:9000:2340:f400:10:db24:6940:93a1              tmdb.org
-2600:9000:2015:c000:10:fb02:4000:93a1              api.tmdb.org
-2600:9000:27da:b000:5:da10:7440:93a1               files.tmdb.org
-2600:9000:233d:7e00:e:5373:440:93a1                themoviedb.org
-2600:9000:2203:c600:c:174a:c400:93a1               api.themoviedb.org
-2600:9000:233d:7400:e:5373:440:93a1                www.themoviedb.org
-2600:9000:2507:b400:16:e4a1:eb00:93a1              auth.themoviedb.org
-2400:52e0:1a00::1234:1                             image.tmdb.org
-2400:52e0:1a00::1234:1                             images.tmdb.org
-2a04:4e42:8e::272                                  ia.media-imdb.com
-2a04:4e42:8e::272                                  f.media-amazon.com
-2606:4700:20::681a:d7e                             images.fanart.tv
-2606:4700:20::681a:d7e                             fanart.tv
+2600:9000:285e:ec00:e:5373:440:93a1                themoviedb.org
+2600:9000:2201:e400:c:174a:c400:93a1               api.themoviedb.org
+2600:9000:2162:6a00:16:e4a1:eb00:93a1              auth.themoviedb.org
+2400:52e0:1a01::994:1                              image.tmdb.org
+2606:4700:20::681a:c7e                             images.fanart.tv
+2606:4700:20::681a:c7e                             fanart.tv
 2606:4700:10::6814:e50                             api.trakt.tv
 2606:4700:10::6814:e50                             trakt.tv
-# Update time: 2026-08-08T06:32:07+08:00
+# Update time: 2026-08-08T18:30:35+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
