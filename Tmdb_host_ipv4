@@ -1,18 +1,32 @@
 # Tmdb Hosts Start
-18.154.101.15               tmdb.org
-18.154.101.120              files.tmdb.org
-3.169.202.83                themoviedb.org
-13.226.251.14               api.themoviedb.org
-3.169.202.128               www.themoviedb.org
+108.139.29.63               tmdb.org
+13.33.109.30                api.tmdb.org
+13.33.82.76                 files.tmdb.org
+3.168.73.5                  themoviedb.org
+13.33.109.70                api.themoviedb.org
+3.168.73.5                  www.themoviedb.org
+18.239.183.51               auth.themoviedb.org
+185.93.2.246                image.tmdb.org
+143.244.56.53               images.tmdb.org
 98.82.155.134               imdb.com
-18.238.137.25               www.imdb.com
-98.82.155.134               us.dd.imdb.com
-99.84.123.80                api.thetvdb.com
-146.75.117.16               f.media-amazon.com
+18.239.182.27               www.imdb.com
+18.239.182.27               secure.imdb.com
+18.239.182.27               s.media-imdb.com
+44.215.137.99               us.dd.imdb.com
+18.239.182.27               www.imdb.to
+98.82.155.134               origin-www.imdb.com
+18.161.20.155               ia.media-imdb.com
+13.33.120.81                thetvdb.com
+18.161.32.112               api.thetvdb.com
+146.75.121.16               f.media-amazon.com
+18.161.34.31                imdb-video.media-imdb.com
 148.113.196.166             webservice.fanart.tv
 104.26.12.126               images.fanart.tv
-172.67.74.146               fanart.tv
-# Update time: 2026-08-08T18:30:35+08:00
+158.69.209.125              assets.fanart.tv
+104.26.12.126               fanart.tv
+104.20.13.80                api.trakt.tv
+104.20.14.80                trakt.tv
+# Update time: 2026-08-09T06:25:27+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
