@@ -60,30 +60,16 @@
 
 ```bash
 # Tmdb Hosts Start
-18.238.96.106               tmdb.org
-18.155.173.89               api.tmdb.org
-18.155.173.80               themoviedb.org
-65.8.20.79                  api.themoviedb.org
-18.155.173.2                www.themoviedb.org
-18.238.96.82                auth.themoviedb.org
-143.244.50.86               image.tmdb.org
-143.244.50.86               images.tmdb.org
+3.173.161.61                api.themoviedb.org
+18.239.105.33               www.themoviedb.org
+79.127.134.133              images.tmdb.org
 44.215.137.99               imdb.com
-18.155.172.74               s.media-imdb.com
-98.82.155.134               us.dd.imdb.com
-18.155.172.74               www.imdb.to
-44.215.137.99               origin-www.imdb.com
-23.34.62.133                ia.media-imdb.com
-65.8.197.76                 thetvdb.com
-18.155.176.108              api.thetvdb.com
-199.232.113.16              f.media-amazon.com
-148.113.196.166             webservice.fanart.tv
-104.26.13.126               images.fanart.tv
-158.69.209.125              assets.fanart.tv
-104.26.13.126               fanart.tv
+18.238.249.95               thetvdb.com
+146.75.121.16               f.media-amazon.com
+172.67.74.146               fanart.tv
 104.20.14.80                api.trakt.tv
 104.20.14.80                trakt.tv
-# Update time: 2026-08-16T06:19:40+08:00
+# Update time: 2026-08-16T18:20:56+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
@@ -91,25 +77,18 @@
 
 ```
 
-该内容会自动定时更新，数据更新时间：2026-08-16T06:19:40+08:00
+该内容会自动定时更新，数据更新时间：2026-08-16T18:20:56+08:00
 
 #### 3.2.2 IPv6 hosts 内容
 
 ```bash
 # Tmdb Hosts Start
-2600:9000:2776:7a00:10:db24:6940:93a1              tmdb.org
-2600:9000:246b:d600:10:fb02:4000:93a1              api.tmdb.org
-2600:9000:2778:c000:5:da10:7440:93a1               files.tmdb.org
-2600:9000:246b:2800:e:5373:440:93a1                themoviedb.org
-2600:9000:2105:5200:c:174a:c400:93a1               api.themoviedb.org
-2600:9000:246b:f400:e:5373:440:93a1                www.themoviedb.org
-2400:52e0:1a01::995:1                              image.tmdb.org
-2400:52e0:1a01::992:1                              images.tmdb.org
+2600:9000:25e8:3400:e:5373:440:93a1                themoviedb.org
+2600:9000:25e8:b800:e:5373:440:93a1                www.themoviedb.org
+2600:9000:2394:9400:1d:d7f6:39d6:4401              ia.media-imdb.com
 2a04:4e42:8e::272                                  f.media-amazon.com
-2606:4700:20::681a:c7e                             images.fanart.tv
-2606:4700:20::681a:c7e                             fanart.tv
-2606:4700:10::6814:d50                             trakt.tv
-# Update time: 2026-08-16T06:19:40+08:00
+2606:4700:10::6814:d50                             api.trakt.tv
+# Update time: 2026-08-16T18:20:56+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
@@ -117,7 +96,7 @@
 
 ```
 
-该内容会自动定时更新，数据更新时间：2026-08-16T06:19:40+08:00
+该内容会自动定时更新，数据更新时间：2026-08-16T18:20:56+08:00
 
 > [!NOTE]
 > 延迟数据获取于 GitHub Actions 虚拟主机网络环境（美国机房），与您本地网络的最优 IP 可能存在差异。建议在本地网络环境运行脚本以获得最佳效果。
