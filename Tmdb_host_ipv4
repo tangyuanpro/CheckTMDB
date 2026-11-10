@@ -1,32 +1,32 @@
 # Tmdb Hosts Start
-18.155.192.21               tmdb.org
-108.138.246.66              api.tmdb.org
-65.8.54.69                  files.tmdb.org
-13.226.38.113               themoviedb.org
+18.155.192.35               tmdb.org
+13.226.38.46                api.tmdb.org
+65.8.54.29                  files.tmdb.org
+13.226.38.29                themoviedb.org
 108.138.246.55              api.themoviedb.org
-13.226.38.113               www.themoviedb.org
-13.249.74.50                auth.themoviedb.org
-169.150.249.167             image.tmdb.org
-169.150.249.167             images.tmdb.org
+13.226.38.29                www.themoviedb.org
+18.155.192.114              auth.themoviedb.org
+169.150.249.165             image.tmdb.org
+169.150.249.165             images.tmdb.org
 44.215.137.99               imdb.com
 18.155.189.195              www.imdb.com
 18.155.189.195              secure.imdb.com
 18.155.189.195              s.media-imdb.com
-44.215.137.99               us.dd.imdb.com
+98.82.158.179               us.dd.imdb.com
 18.155.189.195              www.imdb.to
-98.82.155.134               origin-www.imdb.com
-146.75.117.16               ia.media-imdb.com
+44.215.137.99               origin-www.imdb.com
+65.8.47.31                  ia.media-imdb.com
 13.249.76.81                thetvdb.com
 65.8.184.81                 api.thetvdb.com
-146.75.117.16               f.media-amazon.com
-18.173.121.56               imdb-video.media-imdb.com
+146.75.121.16               f.media-amazon.com
+18.173.121.64               imdb-video.media-imdb.com
 148.113.196.166             webservice.fanart.tv
-172.67.74.146               images.fanart.tv
-158.69.209.125              assets.fanart.tv
-104.26.12.126               fanart.tv
-104.20.13.80                api.trakt.tv
+104.26.13.126               images.fanart.tv
+158.69.210.98               assets.fanart.tv
+104.26.13.126               fanart.tv
+104.20.14.80                api.trakt.tv
 104.20.13.80                trakt.tv
-# Update time: 2026-11-10T11:58:48+08:00
+# Update time: 2026-11-11T01:28:37+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
