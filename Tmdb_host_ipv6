@@ -1,20 +1,20 @@
 # Tmdb Hosts Start
-2600:9000:24bb:c800:10:db24:6940:93a1              tmdb.org
-2600:9000:201e:f600:10:fb02:4000:93a1              api.tmdb.org
-2600:9000:204d:6400:5:da10:7440:93a1               files.tmdb.org
-2600:9000:21dd:7200:e:5373:440:93a1                themoviedb.org
-2600:9000:234b:aa00:c:174a:c400:93a1               api.themoviedb.org
-2600:9000:21dd:3e00:e:5373:440:93a1                www.themoviedb.org
-2600:9000:211f:4a00:16:e4a1:eb00:93a1              auth.themoviedb.org
-2400:52e0:1a01::852:1                              image.tmdb.org
-2400:52e0:1a01::900:1                              images.tmdb.org
-2a04:4e42:8e::272                                  ia.media-imdb.com
+2600:9000:2776:e400:10:db24:6940:93a1              tmdb.org
+2600:9000:246b:5600:10:fb02:4000:93a1              api.tmdb.org
+2600:9000:2778:7600:5:da10:7440:93a1               files.tmdb.org
+2600:9000:246b:ca00:e:5373:440:93a1                themoviedb.org
+2600:9000:2073:bc00:c:174a:c400:93a1               api.themoviedb.org
+2600:9000:246b:7600:e:5373:440:93a1                www.themoviedb.org
+2600:9000:2073:3a00:16:e4a1:eb00:93a1              auth.themoviedb.org
+2400:52e0:1a01::1002:1                             image.tmdb.org
+2400:52e0:1a01::1002:1                             images.tmdb.org
+2600:9000:2073:1a00:1d:d7f6:39d6:dba1              ia.media-imdb.com
 2a04:4e42:8d::272                                  f.media-amazon.com
 2606:4700:20::681a:d7e                             images.fanart.tv
 2606:4700:20::681a:d7e                             fanart.tv
 2606:4700:10::6814:e50                             api.trakt.tv
 2606:4700:10::6814:e50                             trakt.tv
-# Update time: 2026-11-17T12:19:38+08:00
+# Update time: 2026-11-18T02:57:05+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/tangyuanpro/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/cnwikee/CheckTMDB
